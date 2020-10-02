@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  backend:
+    build: backend/
+    ports:
+      - 8000:8000
+    network_mode: bridge
+    container_name: backend
+
+  frontend:
+    build: frontend/
+    depends_on:
+      - backend
+    ports:
+      - 8501:8501
+    network_mode: bridge
+    container_name: frontend
