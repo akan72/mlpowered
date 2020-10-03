@@ -7,3 +7,4 @@ backend/data/raw
 backend/data/processed
 *.model
 *.npy
+*.pkl
