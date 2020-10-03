@@ -1,10 +1,10 @@
+.DS_Store
 __pycache__/
 *.pyc
 *.db
 .vscode
 *.ipynb_checkpoints/
 backend/data/raw
-backend/data/processed
 *.model
 *.npy
 *.pkl

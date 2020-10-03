@@ -60,3 +60,6 @@ print(clf_2.predict(np.array([[3, 4, 3500]])))
 full_regressor = 'models/full_regressor.pkl'
 with open(full_regressor, 'wb') as f:
     pickle.dump(clf_2, f)
+
+processed_data_url = 'data/processed/kc_housing_data_processed.csv'
+data.to_csv(processed_data_url)
