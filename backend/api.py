@@ -1,6 +1,7 @@
 from typing import Optional, List, Union
 import pickle
 import numpy as np
+import joblib
 
 from fastapi import FastAPI
 from pydantic import BaseModel, PositiveInt, PositiveFloat
@@ -17,7 +18,9 @@ class LinregData(BaseModel):
     sqft: Optional[PositiveInt]
 
 class LogregData(BaseModel):
-    price: float
+    bedrooms: PositiveInt
+    bathrooms: Union[PositiveInt, PositiveFloat]
+    year: PositiveInt
 
 @app.get('/')
 async def hello(name: str = 'World'):
@@ -26,13 +29,17 @@ async def hello(name: str = 'World'):
 @app.post('/predict/linreg/')
 async def predict_linreg(data: LinregData):
     if data.sqft is None:
-        model = pickle.load(open('models/bed_bath_regressor.pkl', 'rb'))
+        model = joblib.load('models/bed_bath_regressor.pkl')
         features = np.array([[data.bedrooms, data.bathrooms]])
-
-        return {'price': model.predict(features)[0]}
-
     else:
-        model = pickle.load(open('models/full_regressor.pkl', 'rb'))
+        model = joblib.load('models/full_regressor.pkl')
         features = np.array([[data.bedrooms, data.bathrooms, data.sqft]])
 
-        return {'price': model.predict(features)[0]}
+    return {'price': model.predict(features)[0]}
+
+@app.post('/predict/logreg/')
+async def predict_logreg(data: LogregData):
+    model = joblib.load('models/logreg.pkl')
+    features = np.array([[data.bedrooms, data.bathrooms, data.year]])
+
+    return {'has_basement': str(model.predict(features)[0])}
