@@ -14,6 +14,11 @@ from utils import plot_roc, plot_pr, evaluate
 """ Read in Data and perform initial train/test split """
 data = pd.read_csv('data/raw/kc_house_data.csv')
 
+cities = pd.read_excel('data/processed/zipcode_city_mapping.xlsx')
+data['city'] = data['zipcode'].map(
+    dict(zip(cities['zipcode'], cities['city']))
+)
+
 features: List[str] = ['bedrooms', 'bathrooms']
 
 X: pd.DataFrame = data[features]
