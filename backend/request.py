@@ -15,7 +15,7 @@ print(response_1.text)
 linreg_data_2 = {
     'bedrooms': 3,
     'bathrooms': 2,
-    'sqft': '2000'
+    'sqft': 2000
 }
 
 response_2 = requests.post(linreg_url, json=linreg_data_2)

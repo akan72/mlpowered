@@ -35,7 +35,8 @@ clf = LinearRegression()
 clf.fit(X_train, y_train)
 
 print('Linreg_1 Predictions:\n')
-print(f"Linear Regression Equation\n: {clf.intercept_} + {clf.coef_[0]} * num_bedrooms + {clf.coef_[1]} * num_bathrooms\n")
+print(f"Linear Regression Equation\n: {clf.intercept_} + \
+     {clf.coef_[0]} * num_bedrooms + {clf.coef_[1]} * num_bathrooms\n")
 print(clf.predict(np.array([[2, 2]])))
 print(clf.predict(np.array([[4, 2]])))
 
