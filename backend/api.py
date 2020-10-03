@@ -1,28 +1,38 @@
-from enum import Enum
-from typing import Optional, List
-from fastapi import FastAPI, Query, Path, Body
-from pydantic import BaseModel
+from typing import Optional, List, Union
+import pickle
+import numpy as np
+
+from fastapi import FastAPI
+from pydantic import BaseModel, PositiveInt, PositiveFloat
 
 app = FastAPI(
-    title="Zillow",
+    title="King County Housing Price Prediction",
     description="""
     """
 )
 
-class Item(BaseModel):
-    num_bedrooms: str
-    num_bathrooms: float
+class LinregData(BaseModel):
+    bedrooms: PositiveInt
+    bathrooms: Union[PositiveInt, PositiveFloat]
+    sqft: Optional[PositiveInt]
 
-class HouseType(str, Enum):
-    str1 = '1'
-    str2 = '2'
-    str3 = '3'
+class LogregData(BaseModel):
+    price: float
 
 @app.get('/')
 async def hello(name: str = 'World'):
     return {'Hello': name}
 
-@app.get('/items/{item_id}')
-async def read_item(item_id: int, query: str = None):
-    return {'item_id': item_id, 'query': query}
+@app.post('/predict/linreg/')
+async def predict_linreg(data: LinregData):
+    if data.sqft is None:
+        model = pickle.load(open('models/bed_bath_regressor.pkl', 'rb'))
+        features = np.array([[data.bedrooms, data.bathrooms]])
 
+        return {'price': model.predict(features)[0]}
+
+    else:
+        model = pickle.load(open('models/full_regressor.pkl', 'rb'))
+        features = np.array([[data.bedrooms, data.bathrooms, data.sqft]])
+
+        return {'price': model.predict(features)[0]}
