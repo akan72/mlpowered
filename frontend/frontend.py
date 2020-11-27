@@ -23,7 +23,6 @@ From this [Kaggle Competition](https://www.kaggle.com/harlfoxem/housesalespredic
 Explore the distribution of houses sold across different cities within the county.
 """)
 
-st.set_option('deprecation.showPyplotGlobalUse', False)
 url = 'http://localhost:8000/predict/linreg/'
 
 @st.cache(persist=True)
@@ -76,7 +75,7 @@ ax.set_ylabel("Frequency")
 st.pyplot(fig)
 
 sns.jointplot(data=data, x='sqft_living', y='yr_built')
-st.pyplot()
+st.pyplot(fig)
 
 bedrooms = st.slider('Bedrooms', 0, 10, 2)
 bathrooms = st.slider('Bathrooms', 0, 8, 2)
