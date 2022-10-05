@@ -1,22 +1,20 @@
-FROM tiangolo/uvicorn-gunicorn:python3.7
+FROM python:3.9
 
 ENV LC_ALL=C.UTF-8
 ENV LANG=C.UTF-8
 
-RUN mkdir -p /root/.streamlit
+RUN mkdir -p /frontend/.streamlit
 
 RUN bash -c 'echo -e "\
 [general]\n\
 email = \"\"\n\
-" > /root/.streamlit/credentials.toml'
+" > /frontend/.streamlit/credentials.toml'
 
-COPY requirements.txt /root/.streamlit
+WORKDIR /frontend
 
-WORKDIR /root/.streamlit
+COPY . /frontend
 
 RUN pip install -r requirements.txt
-
-COPY . /root/.streamlit
 
 EXPOSE 8501
 
