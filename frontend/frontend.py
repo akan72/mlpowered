@@ -32,7 +32,7 @@ def load_data(path: str):
     data = data.drop(['id', 'sqft_living15', 'sqft_lot15'], axis=1)
     return data
 
-data = load_data('../backend/data/processed/kc_housing_data_processed.csv')
+data = load_data('/backend/data/processed/kc_housing_data_processed.csv')
 
 top_cities = data['city'].value_counts()[:10].index.tolist()
 top_cities = ['All'] + top_cities
