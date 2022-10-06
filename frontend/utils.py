@@ -1,8 +1,4 @@
-from typing import List
-
-import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 from sklearn.metrics import roc_curve, precision_recall_curve, roc_auc_score
 
 def plot_roc(y_val, y_pred):

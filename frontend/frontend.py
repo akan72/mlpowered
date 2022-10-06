@@ -21,7 +21,7 @@ Explore the distribution of houses sold across different cities within the count
 
 @st.cache(persist=True)
 def load_data(path: str):
-    data = pd.read_csv(path)
+    data = pd.read_csv(path, index_col=[0])
     data = data.dropna(subset=['city'])
     data = data.drop(['id', 'sqft_living15', 'sqft_lot15'], axis=1)
     return data
@@ -68,7 +68,11 @@ ax.set_xlabel("Price")
 ax.set_ylabel("Frequency")
 st.pyplot(fig)
 
-sns.jointplot(data=data, x='sqft_living', y='yr_built')
+fig, ax = plt.subplots()
+sns.histplot(data=hist_data, x='sqft_living', y='yr_built')
+ax.set_title(f"Bivariate Histogram of Year Built and Living Space {display_city if display_city != 'All' else 'King County'}")
+ax.set_xlabel("Living Space (sqft)")
+ax.set_ylabel("Year Built")
 st.pyplot(fig)
 
 bedrooms = st.slider('Bedrooms', 0, 10, 2)
@@ -78,7 +82,7 @@ sqft = st.slider('Square Feet', 200, 10000, 2000)
 json = {
     'bedrooms': bedrooms,
     'bathrooms': bathrooms,
-    'yr_built': sqft
+    'sqft': sqft
 }
 
 if os.getenv('IS_IN_CONTAINER'):
@@ -90,4 +94,5 @@ endpoint = "predict/linreg/"
 
 predicted_price = requests.post(base_url + endpoint, json=json)
 st.text(f"Predicted Price: {predicted_price.json()['price']}")
+st.text(f"Model Used: {predicted_price.json()['model']}")
 st.write(data)

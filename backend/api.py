@@ -36,7 +36,7 @@ async def predict_linreg(data: LinregData):
         features = np.array([[data.bedrooms, data.bathrooms, data.sqft]])
 
     model = joblib.load(model_path)
-    return {'price': model.predict(features)[0]}
+    return {'price': model.predict(features)[0], 'model': model_path}
 
 @app.post('/predict/logreg/')
 async def predict_logreg(data: LogregData):

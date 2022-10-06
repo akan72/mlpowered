@@ -20,6 +20,8 @@ data['city'] = data['zipcode'].map(
 )
 
 data['has_basement'] = data['sqft_basement'].map(lambda x: x != 0)
+data['date'] = pd.to_datetime(data['date'])
+data = data.set_index('date').sort_index()
 
 data.to_csv(f'data/processed/kc_housing_data_processed.csv')
 
