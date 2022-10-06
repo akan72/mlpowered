@@ -20,4 +20,4 @@ ENV IS_IN_CONTAINER TRUE
 
 EXPOSE 8501
 
-CMD ["streamlit", "run", "frontend.py"]
+CMD ["streamlit", "run", "landing.py"]
