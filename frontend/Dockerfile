@@ -16,6 +16,8 @@ COPY . /frontend
 
 RUN pip install -r requirements.txt
 
+ENV IS_IN_CONTAINER TRUE
+
 EXPOSE 8501
 
 CMD ["streamlit", "run", "frontend.py"]

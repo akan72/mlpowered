@@ -1,16 +1,12 @@
+import os
 import streamlit as st
 import pandas as pd
 import numpy as np
 import seaborn as sns
-import altair as alt
 import pydeck as pdk
+
 import matplotlib.pyplot as plt
 import requests
-import joblib
-
-from sklearn.model_selection import train_test_split
-
-from utils import plot_roc, plot_pr, evaluate
 
 st.title("King County Housing Prices")
 st.markdown(
@@ -23,8 +19,6 @@ From this [Kaggle Competition](https://www.kaggle.com/harlfoxem/housesalespredic
 Explore the distribution of houses sold across different cities within the county.
 """)
 
-url = 'http://localhost:8000/predict/linreg/'
-
 @st.cache(persist=True)
 def load_data(path: str):
     data = pd.read_csv(path)
@@ -32,7 +26,7 @@ def load_data(path: str):
     data = data.drop(['id', 'sqft_living15', 'sqft_lot15'], axis=1)
     return data
 
-data = load_data('/backend/data/processed/kc_housing_data_processed.csv')
+data = load_data("../backend/data/processed/kc_housing_data_processed.csv")
 
 top_cities = data['city'].value_counts()[:10].index.tolist()
 top_cities = ['All'] + top_cities
@@ -87,7 +81,13 @@ json = {
     'yr_built': sqft
 }
 
-predicted_price = requests.post(url, json=json)
-st.text(f"Predicted Price: {predicted_price.json()['price']}")
+if os.getenv('IS_IN_CONTAINER'):
+    base_url = f"http://host.docker.internal:8000/"
+else:
+    base_url = "http://localhost:8000/"
 
+endpoint = "predict/linreg/"
+
+predicted_price = requests.post(base_url + endpoint, json=json)
+st.text(f"Predicted Price: {predicted_price.json()['price']}")
 st.write(data)
