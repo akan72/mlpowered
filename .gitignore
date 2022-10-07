@@ -7,4 +7,3 @@ __pycache__/
 backend/data/raw
 *.model
 *.npy
-*.pkl
