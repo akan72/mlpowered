@@ -1,6 +1,7 @@
 from typing import Optional, Union
 import numpy as np
 import joblib
+import json
 
 from fastapi import FastAPI
 from pydantic import BaseModel, PositiveInt, PositiveFloat
@@ -36,11 +37,25 @@ async def predict_linreg(data: LinregData):
         features = np.array([[data.bedrooms, data.bathrooms, data.sqft]])
 
     model = joblib.load(model_path)
-    return {'price': model.predict(features)[0], 'model': model_path}
+
+    return {
+        'price': model.predict(features)[0],
+        'intercept': model.intercept_,
+        'coefficients': json.dumps(model.coef_.tolist()),
+        'model': model_path,
+    }
 
 @app.post('/predict/logreg/')
 async def predict_logreg(data: LogregData):
     features = np.array([[data.bedrooms, data.bathrooms, data.year]])
 
-    model = joblib.load('models/logreg.pkl')
-    return {'has_basement': str(model.predict(features)[0])}
+    model_path = 'models/logreg.pkl'
+    model = joblib.load(model_path)
+
+    return {
+        'has_basement': eval(f'{model.predict(features)[0]}'),
+        'intercept': json.dumps(model.intercept_.tolist()),
+        'coefficients': json.dumps(model.coef_.tolist()),
+        'basement_probability': model.predict_proba(features)[0][1],
+        'model': model_path,
+    }
