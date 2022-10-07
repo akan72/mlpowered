@@ -1,4 +1,5 @@
 import os
+import json
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -35,8 +36,9 @@ display_city = st.selectbox(label='City Name', options=top_cities)
 if display_city != 'All':
     data = data[data['city'] == display_city]
 
-midpoint = (np.average(data["lat"]), np.average(data["long"]))
+st.dataframe(data)
 
+midpoint = (np.average(data["lat"]), np.average(data["long"]))
 st.write(pdk.Deck(
     map_style="mapbox://styles/mapbox/light-v9",
     initial_view_state={
@@ -70,19 +72,20 @@ st.pyplot(fig)
 
 fig, ax = plt.subplots()
 sns.histplot(data=hist_data, x='sqft_living', y='yr_built')
-ax.set_title(f"Bivariate Histogram of Year Built and Living Space {display_city if display_city != 'All' else 'King County'}")
+ax.set_title(f"Bivariate Histogram of Year Built and Living Space in {display_city if display_city != 'All' else 'King County'}")
 ax.set_xlabel("Living Space (sqft)")
 ax.set_ylabel("Year Built")
 st.pyplot(fig)
 
-bedrooms = st.slider('Bedrooms', 0, 10, 2)
-bathrooms = st.slider('Bathrooms', 0, 8, 2)
+st.subheader("Predict home price using (Bedrooms, Bathrooms, Sqft)")
+bedrooms = st.slider('Bedrooms', 0, 10, 2, key='linreg_bed')
+bathrooms = st.slider('Bathrooms', 0, 8, 2, key='linreg_bath')
 sqft = st.slider('Square Feet', 200, 10000, 2000)
 
-json = {
+payload = {
     'bedrooms': bedrooms,
     'bathrooms': bathrooms,
-    'sqft': sqft
+    'sqft': sqft,
 }
 
 if os.getenv('IS_IN_CONTAINER'):
@@ -92,7 +95,41 @@ else:
 
 endpoint = "predict/linreg/"
 
-predicted_price = requests.post(base_url + endpoint, json=json)
-st.text(f"Predicted Price: {predicted_price.json()['price']}")
-st.text(f"Model Used: {predicted_price.json()['model']}")
-st.write(data)
+price_response = requests.post(base_url + endpoint, json=payload)
+st.text(f"Predicted Price: ${price_response.json()['price']:.2f}")
+
+intercept = price_response.json()['intercept']
+coefficients = json.loads(price_response.json()['coefficients'])
+
+st.markdown(f"""Linear Regression Equation\n: ```{intercept:.2f} + {coefficients[0]:.2f} * num_bedrooms + {coefficients[1]:.2f} * num_bathrooms + {coefficients[2]:.2f} * sqft```""")
+st.markdown(f"Model Used: {price_response.json()['model']}")
+
+st.subheader("Predict whether or not the home has a basement using (Bedrooms, Bathrooms, Year)")
+bedrooms = st.slider('Bedrooms', 0, 10, 2, key='logreg_bed')
+bathrooms = st.slider('Bathrooms', 0, 8, 2, key='logreg_bath')
+year = st.slider('Year Built', 1950, 2015, 2000)
+
+payload = {
+    'bedrooms': bedrooms,
+    'bathrooms': bathrooms,
+    'year': year,
+}
+
+endpoint = "predict/logreg/"
+
+basement_response = requests.post(base_url + endpoint, json=payload)
+has_basement = basement_response.json()['has_basement']
+
+basement_probability = basement_response.json()['basement_probability']
+
+intercept = price_response.json()['intercept']
+coefficients = json.loads(basement_response.json()['coefficients'])
+st.markdown(f"""Logistic Regression Equation\n: ```{intercept:.2f} + {coefficients[0][0]:.2f} * num_bedrooms + {coefficients[0][1]:.2f} * num_bathrooms + {coefficients[0][2]:.4f} * year```""")
+
+if has_basement:
+    st.markdown(f"Logistic Regression predicted that the home has a basement with probability: {basement_probability * 100:.2f}%")
+else:
+    st.markdown(f"Logistic Regression predicted that the home does not have basement with probability: {(1-basement_probability) * 100:.2f}%")
+
+st.text(f"Model Used: {basement_response.json()['model']}")
+
