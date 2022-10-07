@@ -1,5 +1,7 @@
 import os
 import json
+import pickle
+from PIL import Image
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -20,7 +22,7 @@ From this [Kaggle Competition](https://www.kaggle.com/harlfoxem/housesalespredic
 Explore the distribution of houses sold across different cities within the county.
 """)
 
-@st.cache(persist=True)
+@st.cache()
 def load_data(path: str):
     data = pd.read_csv(path, index_col=[0])
     data = data.dropna(subset=['city'])
@@ -102,6 +104,10 @@ intercept = price_response.json()['intercept']
 coefficients = json.loads(price_response.json()['coefficients'])
 
 st.markdown(f"""Linear Regression Equation\n: ```{intercept:.2f} + {coefficients[0]:.2f} * num_bedrooms + {coefficients[1]:.2f} * num_bathrooms + {coefficients[2]:.2f} * sqft```""")
+
+fig = pickle.load(open('../backend/images/3dplot.pickle', 'rb'))
+st.pyplot(fig)
+
 st.markdown(f"Model Used: {price_response.json()['model']}")
 
 st.subheader("Predict whether or not the home has a basement using (Bedrooms, Bathrooms, Year)")
@@ -131,5 +137,10 @@ if has_basement:
 else:
     st.markdown(f"Logistic Regression predicted that the home does not have basement with probability: {(1-basement_probability) * 100:.2f}%")
 
+st.markdown("## Logreg model performance")
+st.image(Image.open('../backend/images/prcurve.png'))
+st.image(Image.open('../backend/images/roccurve.png'))
+
 st.text(f"Model Used: {basement_response.json()['model']}")
 
+st.image(Image.open('../backend/images/swagger.png'))
