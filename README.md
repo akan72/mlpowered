@@ -46,7 +46,6 @@
     ├── Dockerfile                              - Dockerfile for the `frontend` service
     ├── landing.py                              - Landing page for the Streamlit frontend
     ├── pages                                   - Streamlit sub-pages
-    │   ├── discovery.py
     │   ├── maps.py
     │   └── modeling.py
     ├── requirements.txt                        - Python dependencies for the `frontend` service

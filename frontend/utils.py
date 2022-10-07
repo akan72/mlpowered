@@ -1,5 +1,18 @@
+import streamlit as st
+import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.metrics import roc_curve, precision_recall_curve, roc_auc_score
+
+@st.cache()
+def load_data(path: str):
+    data = pd.read_csv(path, index_col=[0])
+    data = data.dropna(subset=['city'])
+    data = data.drop(['id', 'sqft_living15', 'sqft_lot15'], axis=1)
+    return data
+
+@st.cache()
+def df_to_csv(df: pd.DataFrame):
+    return df.to_csv().encode('utf-8')
 
 def plot_roc(y_val, y_pred):
     false_positive_rate, true_positive_rate, roc_thresholds = roc_curve(y_val, y_pred)
